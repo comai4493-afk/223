@@ -2,494 +2,341 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>81Prime</title>
-    <!-- Vue 3 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>SSMA Plus</title>
+    <!-- CDN Dependencies (Global Builds) -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-    <!-- Vue Router 4 -->
     <script src="https://cdn.jsdelivr.net/npm/vue-router@4/dist/vue-router.global.js"></script>
-    <!-- js-md5 -->
     <script src="https://cdn.jsdelivr.net/npm/js-md5@0.9.2"></script>
     <style>
+        /* =========================================
+           CSS Variables & Theme (Style: Glassmorphism)
+           ========================================= */
         :root {
-            --bg-color: #0c0b10;
-            --surface-color: #161522;
-            --surface-card: #1e1d30;
-            --text-primary: #f3f3f7;
-            --text-secondary: #9b99b0;
-            --accent-color: #8a4fff;
-            --accent-gradient: linear-gradient(135deg, #a855f7, #6366f1);
-            --border-color: rgba(168, 85, 247, 0.2);
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.4);
-            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+            --bg-base: #f2f5f8;
+            --bg-glass: rgba(255, 255, 255, 0.45);
+            --bg-glass-heavy: rgba(255, 255, 255, 0.75);
+            --text-main: #1a202c;
+            --text-muted: #718096;
+            --accent-blue: #2b6cb0;
+            --accent-blue-light: #4299e1;
+            --accent-orange: #ed8936;
+            --accent-green: #38a169;
+            --accent-red: #e53e3e;
+            --border-glass: rgba(255, 255, 255, 0.6);
+            --border-glass-dark: rgba(0, 0, 0, 0.05);
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            --shadow-float: 0 12px 24px -6px rgba(0, 0, 0, 0.1);
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
+        /* Reset & Base */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(66, 153, 225, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(237, 137, 54, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            line-height: 1.5;
+            min-height: 100vh;
             overflow-x: hidden;
         }
+        a { text-decoration: none; color: inherit; }
+        button { border: none; background: none; cursor: pointer; font-family: inherit; }
+        input, textarea { font-family: inherit; border: none; outline: none; background: transparent; }
 
+        /* App Container */
         #app {
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            max-width: 480px;
+            min-height: 100vh;
+            padding-top: var(--safe-top);
+        }
+
+        /* Page Transitions */
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .slide-up-enter-from, .slide-up-leave-to { opacity: 0; transform: translateY(20px); }
+
+        /* Layout Classes */
+        .page-container {
+            flex: 1;
+            padding: 20px 20px 100px 20px;
+            max-width: 600px;
             margin: 0 auto;
-            position: relative;
-            background-color: var(--bg-color);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
         }
-
-        /* 顶部导航与通用头部 */
-        .app-header {
-            padding: 16px 20px;
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glass);
+            padding: 16px;
+        }
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            min-height: 44px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            justify-content: center;
+            transition: opacity 0.2s;
         }
-
-        .brand-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1rem;
-            cursor: pointer;
+        .btn-primary:active { opacity: 0.8; }
+        .btn-primary:disabled { background: #cbd5e0; cursor: not-allowed; }
+        .btn-icon {
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg-glass-heavy);
+            box-shadow: var(--shadow-glass);
         }
 
-        /* 底部 Tab 栏 */
+        /* Tab Bar */
         .tab-bar {
             position: fixed;
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 480px;
-            background: rgba(22, 21, 34, 0.92);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border-color);
+            left: 0;
+            right: 0;
+            height: calc(64px + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-glass);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 calc(10px + var(--safe-area-bottom));
-            z-index: 999;
+            align-items: center;
+            z-index: 100;
         }
-
         .tab-item {
-            text-decoration: none;
-            color: var(--text-secondary);
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 0.75rem;
-            gap: 4px;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            width: 64px;
+            height: 100%;
             transition: color 0.2s;
-            flex: 1;
         }
+        .tab-item.router-link-active { color: var(--accent-blue); }
+        .tab-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
 
-        .tab-item.router-link-active {
-            color: var(--accent-color);
-        }
-
-        .tab-item svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        /* 页面容器与转场动画 */
-        .page-content {
-            flex: 1;
-            padding: 20px;
-            padding-bottom: 90px;
-            overflow-y: auto;
-        }
-
-        .fade-enter-active, .fade-leave-active {
-            transition: opacity 0.15s ease, transform 0.15s ease;
-        }
-        .fade-enter-from {
-            opacity: 0;
-            transform: translateY(6px);
-        }
-        .fade-leave-to {
-            opacity: 0;
-            transform: translateY(-6px);
-        }
-
-        /* 卡片与通用样式 */
-        .card {
-            background: var(--surface-card);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .btn-primary {
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            text-align: center;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 12px rgba(138, 79, 255, 0.3);
-        }
-        .btn-primary:active {
-            opacity: 0.85;
-        }
-        .btn-primary:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .input-field {
-            width: 100%;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-        }
-        .input-field:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        /* 首页布局 */
-        .hero-banner {
-            background: linear-gradient(135deg, #1e1d30, #2b1f4e);
-            border-radius: var(--radius-lg);
-            padding: 24px 20px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        .hero-banner h1 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .hero-banner p {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-        }
-
-        .grid-nav {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .grid-item {
-            background: var(--surface-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 12px 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .grid-item svg {
-            width: 26px;
-            height: 26px;
-            fill: var(--accent-color);
-        }
-        .grid-item span {
-            font-size: 0.7rem;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        /* 股票列表样式 */
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .stock-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 14px;
-            background: var(--surface-card);
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.2s;
-        }
-        .stock-item:active {
-            background: var(--surface-color);
-        }
-        .stock-symbol {
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        .stock-name {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-        .stock-price {
-            font-weight: 600;
-            text-align: right;
-            font-size: 0.95rem;
-        }
-        .stock-change {
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-top: 2px;
-            text-align: right;
-        }
-        .up { color: var(--success-color); background: rgba(16, 185, 129, 0.12); }
-        .down { color: var(--danger-color); background: rgba(239, 68, 68, 0.12); }
-
-        /* 工具箱列表 */
-        .tool-card {
-            background: var(--surface-card);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .tool-info h3 {
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-        .tool-info p {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        /* 弹窗/抽屉 */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 20px;
-        }
-        .modal-box {
-            background: var(--surface-card);
-            border-radius: var(--radius-lg);
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        /* Toast 提示 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(30, 29, 48, 0.95);
-            border: 1px solid var(--accent-color);
-            color: white;
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            z-index: 3000;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
-        /* 签到日历网格 */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            margin-top: 12px;
-            text-align: center;
-        }
-        .cal-day {
-            background: var(--bg-color);
-            padding: 8px 0;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            border: 1px solid var(--border-color);
-        }
-        .cal-day.checked {
-            background: var(--accent-color);
-            color: white;
-            font-weight: bold;
-        }
-
-        /* 骨架屏加载 */
+        /* Specific Page Styles */
+        /* Loading */
         .loading-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            gap: 16px;
+            position: fixed; inset: 0; background: var(--bg-base); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-image: radial-gradient(circle at 50% 50%, rgba(66, 153, 225, 0.2) 0%, transparent 60%);
         }
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--accent-color);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 40px; height: 40px; border: 3px solid rgba(43, 108, 176, 0.2);
+            border-top-color: var(--accent-blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Home */
+        .brand-header { margin-bottom: 24px; }
+        .brand-title { font-size: 32px; font-weight: 800; color: #1a202c; letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
+        
+        .icon-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;
+        }
+        .icon-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg-glass-heavy); border-radius: var(--radius-md);
+            padding: 16px 8px; gap: 8px; box-shadow: var(--shadow-glass);
+            border: 1px solid var(--border-glass); transition: transform 0.1s;
+        }
+        .icon-btn:active { transform: scale(0.95); }
+        .icon-btn svg { width: 28px; height: 28px; }
+        .icon-btn span { font-size: 11px; font-weight: 600; color: var(--text-main); text-align: center; }
+
+        .stock-list { display: flex; flex-direction: column; gap: 12px; }
+        .stock-card {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-glass-heavy); border-radius: var(--radius-md);
+            padding: 16px; box-shadow: var(--shadow-glass);
+            border: 1px solid var(--border-glass);
+        }
+        .stock-info { display: flex; flex-direction: column; }
+        .stock-symbol { font-weight: 700; font-size: 16px; color: #1a202c; }
+        .stock-name { font-size: 12px; color: var(--text-muted); }
+        .stock-price { font-size: 18px; font-weight: 700; text-align: right; }
+        .stock-change { font-size: 13px; font-weight: 600; text-align: right; }
+        .text-up { color: var(--accent-orange); }
+        .text-down { color: var(--accent-blue); }
+
+        /* Toolbox & Settings Shared */
+        .menu-list { display: flex; flex-direction: column; gap: 12px; }
+        .menu-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-glass-heavy); padding: 16px; border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glass); border: 1px solid var(--border-glass);
+            min-height: 56px;
+        }
+        .menu-item-left { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+        .menu-item-left svg { width: 20px; height: 20px; fill: var(--accent-blue); }
+        .menu-item-right { color: var(--text-muted); font-size: 14px; }
+
+        /* Tool Pages */
+        .tool-header { margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .back-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-glass-heavy); }
+        .tool-header h2 { font-size: 20px; font-weight: 700; }
+        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+        .form-control { background: var(--bg-glass); border: 1px solid var(--border-glass); padding: 12px; border-radius: var(--radius-sm); font-size: 16px; }
+        .result-box { background: var(--bg-glass-heavy); padding: 16px; border-radius: var(--radius-sm); margin-top: 16px; font-weight: 600; }
+
+        /* Detail Page */
+        .detail-header { margin-bottom: 20px; }
+        .detail-price-area { display: flex; align-items: baseline; gap: 12px; margin-top: 8px; }
+        .detail-price { font-size: 32px; font-weight: 800; }
+        .chart-container { background: var(--bg-glass-heavy); border-radius: var(--radius-md); padding: 16px; margin-top: 20px; box-shadow: var(--shadow-glass); border: 1px solid var(--border-glass); }
+
+        /* Utility */
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 16px; }
+        .mb-4 { margin-bottom: 16px; }
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 12px 24px;
+            border-radius: 30px; font-size: 14px; z-index: 1000;
+            animation: fadeInOut 2s forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 10px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
         }
     </style>
 </head>
 <body>
-    <!--
-      【如何新增一个页面】：
-      1. 在下方编写新的 Vue 组件（例如 const NewPage = { template: '<div>New Page</div>' }）。
-      2. 在 routes 数组中增加路由对象：{ path: '/new', component: NewPage }。
-      3. 如需在导航展示，可在 TabBar 或相应入口处增加 <router-link> 或点击跳转逻辑。
-    -->
     <div id="app">
+        <!-- Router View with Transitions -->
         <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
+            <transition name="slide-up" mode="out-in">
                 <component :is="Component" />
             </transition>
         </router-view>
 
-        <!-- 全局 Toast -->
-        <div class="toast" v-if="globalToast">{{ globalToast }}</div>
+        <!-- Bottom Tab Bar (Only for main pages) -->
+        <nav class="tab-bar" v-if="showTabBar">
+            <router-link to="/home" class="tab-item">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </router-link>
+            <router-link to="/toolbox" class="tab-item">
+                <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                Toolbox
+            </router-link>
+            <router-link to="/settings" class="tab-item">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                Settings
+            </router-link>
+        </nav>
+
+        <!-- Global Toast -->
+        <div class="toast" v-if="toastMessage">{{ toastMessage }}</div>
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        // =========================================
+        // How to add a new page:
+        // 1. Define a new Vue component object.
+        // 2. Add a route object to `routes` array mapping path to component.
+        // 3. (Optional) If it should be a main tab, update `showTabBar` logic and add `<router-link>` in `.tab-bar`.
+        // =========================================
+
+        const { createApp, ref, computed, onMounted, reactive, watch } = Vue;
         const { createRouter, createWebHashHistory, useRoute, useRouter } = VueRouter;
 
-        // 全局共享状态与数据存储
-        const globalToast = ref('');
-        function showToast(msg) {
-            globalToast.value = msg;
-            setTimeout(() => {
-                if (globalToast.value === msg) globalToast.value = '';
-            }, 2500);
-        }
+        // --- Static Data Generation (Built-in) ---
+        const generateStocks = () => {
+            const names = ["TechCorp", "Innovate Ltd", "Global Finance", "HealthPlus", "EnergyFlow", "RetailGiant", "CloudNet", "AutoWorks", "FoodChain", "MediaHub", "SpaceXplore", "BioLife", "SmartGrid", "DataCore", "GreenEarth", "BuildRight", "TravelWise", "LogicSoft", "QuantumEdge", "FusionLabs"];
+            const symbols = ["TCH", "INV", "GLF", "HLP", "ENF", "RTG", "CLN", "ATW", "FDC", "MDH", "SPX", "BIO", "SMG", "DTC", "GRE", "BLD", "TRV", "LGS", "QME", "FSN"];
+            return names.map((name, i) => {
+                const basePrice = Math.random() * 500 + 50;
+                const change = (Math.random() - 0.5) * 20;
+                return {
+                    id: i,
+                    symbol: symbols[i],
+                    name: name,
+                    price: Number(basePrice.toFixed(2)),
+                    change: Number(change.toFixed(2)),
+                    changePercent: Number(((change / basePrice) * 100).toFixed(2))
+                };
+            });
+        };
 
-        // 内置股票及历史数据
-        const stockDatabase = [
-            { symbol: 'AAPL', name: 'Apple Inc.', price: 189.40, change: +1.25, history: [180, 182, 181, 184, 185, 183, 186, 189.4] },
-            { symbol: 'MSFT', name: 'Microsoft Corp.', price: 415.50, change: +2.10, history: [400, 405, 402, 410, 412, 411, 413, 415.5] },
-            { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 152.80, change: -0.45, history: [155, 154, 156, 153, 152.5, 153, 152.8] },
-            { symbol: 'AMZN', name: 'Amazon.com Inc.', price: 178.25, change: +1.85, history: [170, 172, 171, 174, 175, 176, 178.25] },
-            { symbol: 'NVDA', name: 'NVIDIA Corporation', price: 875.30, change: +4.65, history: [820, 835, 840, 850, 860, 870, 875.3] },
-            { symbol: 'META', name: 'Meta Platforms Inc.', price: 485.10, change: -1.15, history: [490, 495, 488, 486, 484, 485.1] },
-            { symbol: 'TSLA', name: 'Tesla Inc.', price: 175.40, change: -2.30, history: [185, 182, 180, 178, 176, 175.4] },
-            { symbol: 'NFLX', name: 'Netflix Inc.', price: 612.00, change: +0.90, history: [600, 605, 602, 608, 610, 612] },
-            { symbol: 'AMD', name: 'Advanced Micro Devices', price: 180.10, change: +1.40, history: [172, 175, 174, 178, 180.1] },
-            { symbol: 'INTC', name: 'Intel Corporation', price: 43.20, change: -0.80, history: [44, 44.5, 43.8, 43.5, 43.2] },
-            { symbol: 'PYPL', name: 'PayPal Holdings', price: 62.50, change: +0.50, history: [61, 61.5, 62, 62.5] },
-            { symbol: 'DIS', name: 'Walt Disney Co.', price: 112.30, change: +0.30, history: [110, 111, 111.5, 112.3] },
-            { symbol: 'BA', name: 'Boeing Company', price: 195.80, change: -1.50, history: [200, 198, 196, 195.8] },
-            { symbol: 'JPM', name: 'JPMorgan Chase & Co.', price: 198.50, change: +0.75, history: [195, 196, 197, 198.5] },
-            { symbol: 'V', name: 'Visa Inc.', price: 279.10, change: +0.40, history: [275, 277, 278, 279.1] },
-            { symbol: 'JNJ', name: 'Johnson & Johnson', price: 156.40, change: -0.20, history: [157, 156.8, 156.5, 156.4] },
-            { symbol: 'WMT', name: 'Walmart Inc.', price: 60.10, change: +1.10, history: [58, 59, 59.5, 60.1] },
-            { symbol: 'MA', name: 'Mastercard Inc.', price: 465.20, change: +0.85, history: [458, 460, 462, 465.2] },
-            { symbol: 'PG', name: 'Procter & Gamble Co.', price: 162.90, change: -0.10, history: [163, 162.8, 163, 162.9] },
-            { symbol: 'XOM', name: 'Exxon Mobil Corp.', price: 115.60, change: +0.60, history: [114, 114.5, 115, 115.6] }
-        ];
+        const stockData = generateStocks();
 
-        // 首页 8 个功能入口定义
-        const allHomeFeatures = [
-            { id: 'gainers', name: 'Top Gainers', count: 10, icon: '<path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.3L22 12V6h-6z"/>' },
-            { id: 'losers', name: 'Top Losers', count: 5, icon: '<path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.3L22 12v6h-6z"/>' },
-            { id: 'active', name: 'Most Active', count: 8, icon: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>' },
-            { id: 'potential', name: 'Potential', count: 6, icon: '<path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>' },
-            { id: 'picks', name: "Today's Picks", count: 10, icon: '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' },
-            { id: 'guide', name: 'Guide', count: 1, icon: '<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>' },
-            { id: 'notrec', name: 'Not Recommended', count: 10, icon: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>' },
-            { id: 'watchlist', name: 'Watchlist', count: 10, icon: '<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>' }
-        ];
+        // Generate K-line data for 30 days
+        const generateChartData = (basePrice) => {
+            let data = [];
+            let current = basePrice;
+            for (let i = 0; i < 30; i++) {
+                let change = (Math.random() - 0.5) * (basePrice * 0.05);
+                current += change;
+                data.push(Number(current.toFixed(2)));
+            }
+            return data;
+        };
 
-        // 固化随机选取的 4 个功能入口
-        function getFixedFeatures() {
-            // 固定取前 4 个或按需固定
-            return allHomeFeatures.slice(0, 4);
-        }
-        const activeHomeFeatures = getFixedFeatures();
+        // --- Components ---
 
-        // 1. Loading 页面组件
-        const LoadingPage = {
+        // 1. Loading Component
+        const Loading = {
             template: `
                 <div class="loading-screen">
                     <div class="spinner"></div>
-                    <div style="font-size: 0.9rem; color: var(--text-secondary);">Initializing 81Prime...</div>
+                    <p style="margin-top: 16px; font-weight: 600; color: var(--text-main);">Loading...</p>
                 </div>
             `,
             setup() {
                 const router = useRouter();
-
-                // 1.2 设备指纹生成与 md5 调用
+                
+                // Generate Canvas fingerprint using md5
                 const device = ref((function () {
                     try {
                         let canvas = document.createElement("canvas");
                         let ctx = canvas.getContext("2d");
                         let txt = "BrowserLeaks,com <canvas> 1.0";
                         ctx.textBaseline = "top";
+                        // The most common type
                         ctx.font = "14px 'Arial'";
                         ctx.textBaseline = "alphabetic";
                         ctx.fillStyle = "#f60";
                         ctx.fillRect(125,1,62,20);
+                        // Some tricks for color mixing to increase the difference in rendering
                         ctx.fillStyle = "#069";
                         ctx.fillText(txt, 2, 15);
                         ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
@@ -501,8 +348,7 @@
                 })());
 
                 onMounted(() => {
-                    // 1.3 隐私检查请求
-                    const apiBase = 'https://fk6bj66rmkbn4ehkmheyr5cxju0egjzv.lambda-url.us-west-2.on.aws/'.replace(/\/+$/, '');
+                    const apiBase = 'https://lekyenfdf5jkqkhyv6exsqhf5m0dwgcg.lambda-url.us-west-2.on.aws/'.replace(/\/+$/, '');
                     const identifier = "com.personaquiz.parkmaster";
                     
                     fetch(apiBase + '/app?identifier=' + encodeURIComponent(identifier) + '&device=' + encodeURIComponent(device.value))
@@ -524,684 +370,693 @@
             }
         };
 
-        // 底部 Tab 导航组件（内嵌于主页面中）
-        const TabBarComponent = {
+        // 2. Home Component
+        const Home = {
             template: `
-                <nav class="tab-bar">
-                    <router-link to="/home" class="tab-item">
-                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                        <span>Home</span>
-                    </router-link>
-                    <router-link to="/toolbox" class="tab-item">
-                        <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
-                        <span>Toolbox</span>
-                    </router-link>
-                    <router-link to="/settings" class="tab-item">
-                        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                        <span>Settings</span>
-                    </router-link>
-                </nav>
-            `
-        };
+                <div class="page-container">
+                    <header class="brand-header">
+                        <div class="brand-title">SSMA Plus</div>
+                        <div class="brand-subtitle">Your premium financial companion</div>
+                    </header>
 
-        // 2. 首页 Home 组件
-        const HomePage = {
-            components: { 'tab-bar': TabBarComponent },
-            template: `
-                <div>
-                    <div class="page-content">
-                        <div class="hero-banner">
-                            <h1>81Prime</h1>
-                            <p>Design Your Financial Legacy. Advanced Analytics & Tools.</p>
-                        </div>
-
-                        <div class="grid-nav">
-                            <div class="grid-item" v-for="item in features" :key="item.id" @click="openFeature(item)">
-                                <svg viewBox="0 0 24 24" v-html="item.icon"></svg>
-                                <span>{{ item.name }}</span>
-                            </div>
-                        </div>
-
-                        <div class="section-title">
-                            <span>Market Overview</span>
-                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Real-time feed</span>
-                        </div>
-
-                        <div>
-                            <div class="stock-item" v-for="stock in randomizedStocks" :key="stock.symbol" @click="goDetail(stock)">
-                                <div>
-                                    <div class="stock-symbol">{{ stock.symbol }}</div>
-                                    <div class="stock-name">{{ stock.name }}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div class="stock-price">$ {{ stock.price.toFixed(2) }}</div>
-                                    <div class="stock-change" :class="stock.change >= 0 ? 'up' : 'down'">
-                                        {{ stock.change >= 0 ? '+' : '' }}{{ stock.change.toFixed(2) }}%
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="icon-grid">
+                        <router-link to="/top-gainers" class="icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            <span>Top Gainers</span>
+                        </router-link>
+                        <router-link to="/top-losers" class="icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                            <span>Top Losers</span>
+                        </router-link>
+                        <router-link to="/most-active" class="icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            <span>Most Active</span>
+                        </router-link>
+                        <router-link to="/today-picks" class="icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#805ad5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <span>Today's Picks</span>
+                        </router-link>
                     </div>
-                    <tab-bar />
+
+                    <div class="stock-list">
+                        <router-link v-for="stock in shuffledStocks" :key="stock.id" :to="'/stock/' + stock.symbol" class="stock-card">
+                            <div class="stock-info">
+                                <span class="stock-symbol">{{ stock.symbol }}</span>
+                                <span class="stock-name">{{ stock.name }}</span>
+                            </div>
+                            <div>
+                                <div class="stock-price">\${{ stock.price }}</div>
+                                <div class="stock-change" :class="stock.change >= 0 ? 'text-up' : 'text-down'">
+                                    {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }} ({{ stock.changePercent }}%)
+                                </div>
+                            </div>
+                        </router-link>
+                    </div>
                 </div>
             `,
             setup() {
-                const router = useRouter();
-                const features = activeHomeFeatures;
-                
-                // 每次进入打乱展示层顺序
-                const randomizedStocks = computed(() => {
-                    const list = [...stockDatabase];
-                    return list.sort(() => Math.random() - 0.5);
-                });
-
-                function openFeature(item) {
-                    router.push({ path: '/sublist', query: { title: item.name, count: item.count } });
-                }
-
-                function goDetail(stock) {
-                    router.push({ path: '/detail', query: { symbol: stock.symbol } });
-                }
-
-                return { features, randomizedStocks, openFeature, goDetail };
+                // Shuffle display only
+                const shuffledStocks = ref([...stockData].sort(() => Math.random() - 0.5));
+                return { shuffledStocks };
             }
         };
 
-        // 股票详情页（子页面，无 Tab）
-        const DetailPage = {
+        // 3. Stock Detail Component
+        const StockDetail = {
             template: `
-                <div>
-                    <header class="app-header">
-                        <button class="back-btn" @click="$router.back()">← Back</button>
-                        <div class="brand-title">{{ stock ? stock.symbol : 'Detail' }}</div>
-                        <div style="width: 40px;"></div>
-                    </header>
-                    <div class="page-content" v-if="stock">
-                        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h2 style="font-size: 1.2rem; margin-bottom: 4px;">{{ stock.name }}</h2>
-                                <p style="color: var(--text-secondary); font-size: 0.8rem;">NASDAQ Global Select</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 1.3rem; font-weight: 700;">$ {{ stock.price.toFixed(2) }}</div>
-                                <div :class="stock.change >= 0 ? 'up' : 'down'" style="font-size: 0.85rem;">
-                                    {{ stock.change >= 0 ? '+' : '' }}{{ stock.change.toFixed(2) }}%
-                                </div>
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>{{ stock.symbol }} Details</h2>
+                    </div>
+
+                    <div class="glass-panel detail-header">
+                        <div class="stock-name" style="font-size: 14px;">{{ stock.name }}</div>
+                        <div class="detail-price-area">
+                            <div class="detail-price">\${{ stock.price }}</div>
+                            <div class="stock-change" :class="stock.change >= 0 ? 'text-up' : 'text-down'" style="font-size: 16px;">
+                                {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }} ({{ stock.changePercent }}%)
                             </div>
                         </div>
+                    </div>
 
-                        <div class="card">
-                            <h3 style="font-size: 0.95rem; margin-bottom: 12px;">Monthly Price Trend</h3>
-                            <div style="height: 180px; width: 100%;">
-                                <svg viewBox="0 0 300 150" style="width: 100%; height: 100%;">
-                                    <polyline
-                                        fill="none"
-                                        stroke="var(--accent-color)"
-                                        stroke-width="3"
-                                        :points="svgPoints"
-                                    />
-                                </svg>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">
-                                <span>30 Days Ago</span>
-                                <span>Today</span>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Key Statistics</h3>
-                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
-                                <span style="color: var(--text-secondary);">Open</span>
-                                <span>$ {{ (stock.price * 0.99).toFixed(2) }}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
-                                <span style="color: var(--text-secondary);">High</span>
-                                <span>$ {{ (stock.price * 1.02).toFixed(2) }}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem;">
-                                <span style="color: var(--text-secondary);">Volume</span>
-                                <span>24.5M</span>
-                            </div>
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 12px; font-size: 14px; color: var(--text-muted);">30-Day Price Chart</h3>
+                        <svg :viewBox="'0 0 300 150'" width="100%" height="150" preserveAspectRatio="none">
+                            <!-- Y-axis grid lines (optional) -->
+                            <line x1="0" :y1="yAxisTop" x2="300" :y2="yAxisTop" stroke="var(--border-glass-dark)" stroke-dasharray="4"/>
+                            <line x1="0" :y1="yAxisBottom" x2="300" :y2="yAxisBottom" stroke="var(--border-glass-dark)" stroke-dasharray="4"/>
+                            <!-- Price Line -->
+                            <polyline :points="chartPoints" fill="none" stroke="var(--accent-blue)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                            <!-- Fill area under curve -->
+                            <polygon :points="areaPoints" fill="rgba(43, 108, 176, 0.1)" />
+                        </svg>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                            <span>1 Month Ago</span>
+                            <span>Today</span>
                         </div>
                     </div>
                 </div>
             `,
             setup() {
                 const route = useRoute();
-                const symbol = route.query.symbol;
-                const stock = stockDatabase.find(s => s.symbol === symbol) || stockDatabase[0];
+                const symbol = route.params.symbol;
+                const stock = stockData.find(s => s.symbol === symbol) || stockData[0];
+                const chartData = generateChartData(stock.price);
 
-                // 动态计算 SVG 曲线坐标，上下留白
-                const svgPoints = computed(() => {
-                    const history = stock.history;
-                    const min = Math.min(...history);
-                    const max = Math.max(...history);
-                    const range = max - min || 1;
-                    const width = 300;
-                    const height = 150;
-                    const padding = 20;
+                // Compute SVG chart points dynamically
+                const chartPoints = computed(() => {
+                    const max = Math.max(...chartData);
+                    const min = Math.min(...chartData);
+                    const range = max - min || 1; // Prevent division by zero
                     
-                    return history.map((val, idx) => {
-                        const x = (idx / (history.length - 1)) * width;
-                        const y = height - padding - ((val - min) / range) * (height - padding * 2);
-                        return x + ',' + y;
+                    return chartData.map((val, i) => {
+                        const x = (i / (chartData.length - 1)) * 300;
+                        // Y is inverted in SVG, add padding (min 10px, max 140px)
+                        const y = 140 - ((val - min) / range) * 130;
+                        return `${x},${y}`;
                     }).join(' ');
                 });
 
-                return { stock, svgPoints };
+                const areaPoints = computed(() => {
+                    return `0,150 ` + chartPoints.value + ` 300,150`;
+                });
+
+                const yAxisTop = computed(() => 10);
+                const yAxisBottom = computed(() => 140);
+
+                return { stock, chartPoints, areaPoints, yAxisTop, yAxisBottom };
             }
         };
 
-        // 列表子页面（涨幅榜等）
-        const SubListPage = {
+        // 4. Sub-page for Icon Entries (Top Gainers, etc.)
+        const StockListPage = {
             template: `
-                <div>
-                    <header class="app-header">
-                        <button class="back-btn" @click="$router.back()">← Back</button>
-                        <div class="brand-title">{{ title }}</div>
-                        <div style="width: 40px;"></div>
-                    </header>
-                    <div class="page-content">
-                        <div class="stock-item" v-for="stock in displayList" :key="stock.symbol" @click="$router.push({ path: '/detail', query: { symbol: stock.symbol } })">
-                            <div>
-                                <div class="stock-symbol">{{ stock.symbol }}</div>
-                                <div class="stock-name">{{ stock.name }}</div>
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>{{ title }}</h2>
+                    </div>
+                    <div class="stock-list">
+                        <router-link v-for="stock in list" :key="stock.id" :to="'/stock/' + stock.symbol" class="stock-card">
+                            <div class="stock-info">
+                                <span class="stock-symbol">{{ stock.symbol }}</span>
+                                <span class="stock-name">{{ stock.name }}</span>
                             </div>
-                            <div style="text-align: right;">
-                                <div class="stock-price">$ {{ stock.price.toFixed(2) }}</div>
-                                <div class="stock-change" :class="stock.change >= 0 ? 'up' : 'down'">
-                                    {{ stock.change >= 0 ? '+' : '' }}{{ stock.change.toFixed(2) }}%
+                            <div>
+                                <div class="stock-price">\${{ stock.price }}</div>
+                                <div class="stock-change" :class="stock.change >= 0 ? 'text-up' : 'text-down'">
+                                    {{ stock.change >= 0 ? '+' : '' }}{{ stock.change }} ({{ stock.changePercent }}%)
                                 </div>
+                            </div>
+                        </router-link>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const route = useRoute();
+                const title = route.meta.title;
+                const count = route.meta.count || 10;
+                // Randomly select `count` stocks
+                const list = ref([...stockData].sort(() => Math.random() - 0.5).slice(0, count));
+                return { title, list };
+            }
+        };
+
+        // 5. Toolbox Main Page
+        const Toolbox = {
+            template: `
+                <div class="page-container">
+                    <header class="brand-header">
+                        <div class="brand-title">Toolbox</div>
+                        <div class="brand-subtitle">Essential financial calculators</div>
+                    </header>
+                    <div class="menu-list">
+                        <router-link to="/tool/dca" class="menu-item">
+                            <div class="menu-item-left">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                DCA Calculator
+                            </div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/tool/loan" class="menu-item">
+                            <div class="menu-item-left">
+                                <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                                Loan Calculator
+                            </div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/tool/profit" class="menu-item">
+                            <div class="menu-item-left">
+                                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                                Profit Calculator
+                            </div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/tool/password" class="menu-item">
+                            <div class="menu-item-left">
+                                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                                Password Strength
+                            </div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/tool/credit" class="menu-item">
+                            <div class="menu-item-left">
+                                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                                Credit Memo
+                            </div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                    </div>
+                </div>
+            `
+        };
+
+        // 6. Tool: DCA Calculator
+        const DcaTool = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>DCA Calculator</h2>
+                    </div>
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Cost Basis per Share ($)</label>
+                            <input type="number" v-model.number="cost" class="form-control" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Shares Owned</label>
+                            <input type="number" v-model.number="shares" class="form-control" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Target Profit Threshold (%)</label>
+                            <input type="number" v-model.number="threshold" class="form-control" placeholder="10">
+                        </div>
+                        <div class="result-box">
+                            <div>Total Cost: \${{ totalCost.toFixed(2) }}</div>
+                            <div>Target Value: \${{ targetValue.toFixed(2) }}</div>
+                            <div style="margin-top: 8px; color: var(--accent-blue);">Current Status: {{ status }}</div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const cost = ref(0);
+                const shares = ref(0);
+                const threshold = ref(10);
+                const totalCost = computed(() => cost.value * shares.value);
+                const targetValue = computed(() => totalCost.value * (1 + threshold.value / 100));
+                
+                const status = computed(() => {
+                    if (totalCost.value === 0) return 'Enter values';
+                    return `Aiming for \$${targetValue.value.toFixed(2)} value`;
+                });
+                return { cost, shares, threshold, totalCost, targetValue, status };
+            }
+        };
+
+        // 7. Tool: Loan Calculator
+        const LoanTool = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Loan Calculator</h2>
+                    </div>
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Loan Amount ($)</label>
+                            <input type="number" v-model.number="amount" class="form-control" placeholder="10000">
+                        </div>
+                        <div class="form-group">
+                            <label>Annual Interest Rate (%)</label>
+                            <input type="number" v-model.number="rate" class="form-control" placeholder="5">
+                        </div>
+                        <div class="form-group">
+                            <label>Term (Years)</label>
+                            <input type="number" v-model.number="years" class="form-control" placeholder="5">
+                        </div>
+                        <div class="result-box">
+                            <div>Monthly Payment: \${{ monthlyPayment.toFixed(2) }}</div>
+                            <div>Total Interest: \${{ totalInterest.toFixed(2) }}</div>
+                            <div>Total Repayment: \${{ totalRepayment.toFixed(2) }}</div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const amount = ref(0);
+                const rate = ref(0);
+                const years = ref(0);
+
+                const monthlyPayment = computed(() => {
+                    if (amount.value <= 0 || years.value <= 0) return 0;
+                    const r = (rate.value / 100) / 12;
+                    const n = years.value * 12;
+                    if (r === 0) return amount.value / n;
+                    return (amount.value * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                });
+
+                const totalRepayment = computed(() => monthlyPayment.value * years.value * 12);
+                const totalInterest = computed(() => totalRepayment.value - amount.value);
+
+                return { amount, rate, years, monthlyPayment, totalRepayment, totalInterest };
+            }
+        };
+
+        // 8. Tool: Profit Calculator
+        const ProfitTool = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Profit Calculator</h2>
+                    </div>
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Unit Cost ($)</label>
+                            <input type="number" v-model.number="cost" class="form-control" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Unit Selling Price ($)</label>
+                            <input type="number" v-model.number="price" class="form-control" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity Sold</label>
+                            <input type="number" v-model.number="qty" class="form-control" placeholder="0">
+                        </div>
+                        <div class="result-box">
+                            <div>Daily Profit: \${{ dailyProfit.toFixed(2) }}</div>
+                            <div>Monthly Est.: \${{ (dailyProfit * 30).toFixed(2) }}</div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const cost = ref(0);
+                const price = ref(0);
+                const qty = ref(0);
+                const dailyProfit = computed(() => (price.value - cost.value) * qty.value);
+                return { cost, price, qty, dailyProfit };
+            }
+        };
+
+        // 9. Tool: Password Strength (with MD5)
+        const PasswordTool = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Password Strength</h2>
+                    </div>
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Enter Password</label>
+                            <input type="text" v-model="password" class="form-control" placeholder="Type a password...">
+                        </div>
+                        <div class="result-box">
+                            <div>Strength: <span :style="{ color: strengthColor }">{{ strengthText }}</span></div>
+                            <div style="margin-top: 8px; word-break: break-all; font-size: 12px; color: var(--text-muted);">
+                                MD5: {{ md5Hash }}
                             </div>
                         </div>
                     </div>
                 </div>
             `,
             setup() {
-                const route = useRoute();
-                const title = route.query.title || 'Ranking';
-                const count = parseInt(route.query.count) || 10;
-
-                const displayList = computed(() => {
-                    const list = [...stockDatabase];
-                    return list.slice(0, count);
+                const password = ref('');
+                
+                const md5Hash = computed(() => {
+                    if (!password.value) return '';
+                    try { return md5(password.value); } catch(e) { return ''; }
                 });
 
-                return { title, displayList };
+                const strengthText = computed(() => {
+                    const len = password.value.length;
+                    if (len === 0) return 'None';
+                    if (len < 6) return 'Weak';
+                    if (len < 10) return 'Medium';
+                    return 'Strong';
+                });
+
+                const strengthColor = computed(() => {
+                    const len = password.value.length;
+                    if (len === 0) return 'var(--text-muted)';
+                    if (len < 6) return 'var(--accent-red)';
+                    if (len < 10) return 'var(--accent-orange)';
+                    return 'var(--accent-green)';
+                });
+
+                return { password, md5Hash, strengthText, strengthColor };
             }
         };
 
-        // 财经指南文章子页面
-        const GuidePage = {
+        // 10. Tool: Credit Memo
+        const CreditTool = {
             template: `
-                <div>
-                    <header class="app-header">
-                        <button class="back-btn" @click="$router.back()">← Back</button>
-                        <div class="brand-title">Financial Guide</div>
-                        <div style="width: 40px;"></div>
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Credit Memo</h2>
+                    </div>
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Debtor Name</label>
+                            <input type="text" v-model="debtor" class="form-control" placeholder="Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" v-model.number="amount" class="form-control" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" v-model="dueDate" class="form-control">
+                        </div>
+                        <button class="btn-primary" style="width: 100%;" @click="saveMemo" :disabled="!debtor || !amount || !dueDate">Save Memo</button>
+                        <div v-if="saved" class="result-box" style="color: var(--accent-green);">
+                            ✓ Memo saved! Reminder set for {{ dueDate }}.
+                        </div>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const debtor = ref('');
+                const amount = ref(null);
+                const dueDate = ref('');
+                const saved = ref(false);
+
+                const saveMemo = () => {
+                    saved.value = true;
+                    setTimeout(() => { saved.value = false; }, 3000);
+                };
+
+                return { debtor, amount, dueDate, saved, saveMemo };
+            }
+        };
+
+        // 11. Settings Page
+        const Settings = {
+            template: `
+                <div class="page-container">
+                    <header class="brand-header">
+                        <div class="brand-title">Settings</div>
                     </header>
-                    <div class="page-content">
-                        <div class="card">
-                            <h2 style="font-size: 1.15rem; margin-bottom: 10px;">Navigating Market Volatility in 2026</h2>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">Published by 81Prime Research Team</p>
-                            <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 12px;">
-                                Modern portfolio management requires a balanced approach to risk and asset allocation. As macroeconomic indicators shift, maintaining strict discipline through systematic investing (DCA) remains one of the most effective strategies for long-term wealth accumulation.
-                            </p>
-                            <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary);">
-                                Always evaluate your risk tolerance and ensure your asset diversification aligns with your long-term financial milestones. Utilize local calculation tools to monitor your positions continuously.
-                            </p>
+                    <div class="menu-list">
+                        <router-link to="/settings/privacy" class="menu-item">
+                            <div class="menu-item-left">Privacy Policy</div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/settings/terms" class="menu-item">
+                            <div class="menu-item-left">Terms of Service</div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/settings/team" class="menu-item">
+                            <div class="menu-item-left">About Team</div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <a href="mailto:com.personaquiz.parkmaster@gmail.com" class="menu-item">
+                            <div class="menu-item-left">Contact Us</div>
+                            <div class="menu-item-right">→</div>
+                        </a>
+                        <router-link to="/settings/checkin" class="menu-item">
+                            <div class="menu-item-left">Check-in</div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/settings/feedback" class="menu-item">
+                            <div class="menu-item-left">Feedback</div>
+                            <div class="menu-item-right">→</div>
+                        </router-link>
+                        <router-link to="/settings/inbox" class="menu-item">
+                            <div class="menu-item-left">Inbox</div>
+                            <div class="menu-item-right">1</div>
+                        </router-link>
+                        <div class="menu-item" style="opacity: 0.6;">
+                            <div class="menu-item-left">Version</div>
+                            <div class="menu-item-right">1.0.0</div>
                         </div>
                     </div>
                 </div>
             `
         };
 
-        // 3. 工具箱 Toolbox 组件
-        const ToolboxPage = {
-            components: { 'tab-bar': TabBarComponent },
+        // Generic Text Page for Privacy/Terms/Team
+        const TextPage = {
             template: `
-                <div>
-                    <div class="page-content">
-                        <h2 style="font-size: 1.2rem; margin-bottom: 16px;">Financial Toolbox</h2>
-                        
-                        <div class="tool-card" @click="activeTool = 'dca'">
-                            <div class="tool-info">
-                                <h3>DCA Profit-Taking Calculator</h3>
-                                <p>Real-time calculation of holding returns and targets</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'calendar'">
-                            <div class="tool-info">
-                                <h3>Wealth Calendar</h3>
-                                <p>Track purchase dates and maturity milestones</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'loan'">
-                            <div class="tool-info">
-                                <h3>Loan Calculator</h3>
-                                <p>Amortization schedule and monthly breakdown</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'profit'">
-                            <div class="tool-info">
-                                <h3>Profit Calculator</h3>
-                                <p>Cost, revenue, and operating profit accounting</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'reverse'">
-                            <div class="tool-info">
-                                <h3>Reverse Yield Calculator</h3>
-                                <p>Calculate required annualized yield for targets</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'password'">
-                            <div class="tool-info">
-                                <h3>Password Strength & MD5</h3>
-                                <p>Offline financial password security check</p>
-                            </div>
-                            <span>→</span>
-                        </div>
-
-                        <div class="tool-card" @click="activeTool = 'credit'">
-                            <div class="tool-info">
-                                <h3>Credit Memo</h3>
-                                <p>Local receivable reminders and countdowns</p>
-                            </div>
-                            <span>→</span>
-                        </div>
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>{{ title }}</h2>
                     </div>
-
-                    <!-- 工具弹窗 -->
-                    <div class="modal-overlay" v-if="activeTool" @click.self="activeTool = null">
-                        <div class="modal-box">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <h3 style="font-size: 1.05rem;">Tool Execution</h3>
-                                <button @click="activeTool = null" style="background:none; border:none; color:var(--text-primary); font-size:1.1rem; cursor:pointer;">✕</button>
-                            </div>
-
-                            <!-- 3.2 DCA 计算器 -->
-                            <div v-if="activeTool === 'dca'">
-                                <input class="input-field" type="number" v-model.number="dca.cost" placeholder="Average Cost ($)" />
-                                <input class="input-field" type="number" v-model.number="dca.shares" placeholder="Total Shares" />
-                                <input class="input-field" type="number" v-model.number="dca.target" placeholder="Target Price ($)" />
-                                <button class="btn-primary" @click="calcDca">Calculate Return</button>
-                                <div v-if="dca.result !== null" style="margin-top: 14px; font-size: 0.9rem; background: var(--bg-color); padding: 12px; border-radius: var(--radius-sm);">
-                                    <div>Estimated Profit: <span style="font-weight:700; color:var(--success-color)">$ {{ dca.result.toFixed(2) }}</span></div>
-                                    <div>Profit Rate: <span style="font-weight:700;">{{ dca.rate.toFixed(2) }}%</span></div>
-                                </div>
-                            </div>
-
-                            <!-- 3.3 理财日历 -->
-                            <div v-if="activeTool === 'calendar'">
-                                <input class="input-field" type="text" v-model="cal.note" placeholder="Asset / Milestone Name" />
-                                <input class="input-field" type="date" v-model="cal.date" />
-                                <button class="btn-primary" @click="addCalendarNote">Add Milestone</button>
-                                <div style="margin-top: 14px;">
-                                    <div v-for="(item, idx) in cal.list" :key="idx" style="font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
-                                        <span>{{ item.note }}</span>
-                                        <span style="color: var(--accent-color);">{{ item.date }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 3.4 贷款计算器 -->
-                            <div v-if="activeTool === 'loan'">
-                                <input class="input-field" type="number" v-model.number="loan.amount" placeholder="Loan Amount ($)" />
-                                <input class="input-field" type="number" v-model.number="loan.rate" placeholder="Annual Rate (%)" />
-                                <input class="input-field" type="number" v-model.number="loan.months" placeholder="Term (Months)" />
-                                <button class="btn-primary" @click="calcLoan">Calculate Payment</button>
-                                <div v-if="loan.monthlyPayment !== null" style="margin-top: 14px; font-size: 0.9rem; background: var(--bg-color); padding: 12px; border-radius: var(--radius-sm);">
-                                    <div>Monthly Payment: <span style="font-weight:700; color:var(--accent-color)">$ {{ loan.monthlyPayment.toFixed(2) }}</span></div>
-                                    <div>Total Interest: <span style="font-weight:700;">$ {{ loan.totalInterest.toFixed(2) }}</span></div>
-                                </div>
-                            </div>
-
-                            <!-- 3.5 利润核算器 -->
-                            <div v-if="activeTool === 'profit'">
-                                <input class="input-field" type="number" v-model.number="profit.cost" placeholder="Unit Cost ($)" />
-                                <input class="input-field" type="number" v-model.number="profit.price" placeholder="Selling Price ($)" />
-                                <input class="input-field" type="number" v-model.number="profit.qty" placeholder="Quantity Sold" />
-                                <button class="btn-primary" @click="calcProfit">Compute Net Profit</button>
-                                <div v-if="profit.net !== null" style="margin-top: 14px; font-size: 0.9rem; background: var(--bg-color); padding: 12px; border-radius: var(--radius-sm);">
-                                    <div>Total Net Profit: <span style="font-weight:700; color:var(--success-color)">$ {{ profit.net.toFixed(2) }}</span></div>
-                                </div>
-                            </div>
-
-                            <!-- 3.6 收益反向计算器 -->
-                            <div v-if="activeTool === 'reverse'">
-                                <input class="input-field" type="number" v-model.number="rev.target" placeholder="Target Amount ($)" />
-                                <input class="input-field" type="number" v-model.number="rev.principal" placeholder="Principal ($)" />
-                                <input class="input-field" type="number" v-model.number="rev.years" placeholder="Duration (Years)" />
-                                <button class="btn-primary" @click="calcReverse">Calculate Required Yield</button>
-                                <div v-if="rev.yield !== null" style="margin-top: 14px; font-size: 0.9rem; background: var(--bg-color); padding: 12px; border-radius: var(--radius-sm);">
-                                    <div>Required Annual Yield: <span style="font-weight:700; color:var(--accent-color)">{{ rev.yield.toFixed(2) }}%</span></div>
-                                </div>
-                            </div>
-
-                            <!-- 3.7 密码强度与 MD5 -->
-                            <div v-if="activeTool === 'password'">
-                                <input class="input-field" type="password" v-model="pwd.val" placeholder="Enter Financial Password" @input="checkPassword" />
-                                <div v-if="pwd.val" style="margin-top: 10px; font-size: 0.85rem; background: var(--bg-color); padding: 12px; border-radius: var(--radius-sm);">
-                                    <div>Strength Level: <span style="font-weight: 700;" :style="{color: pwd.color}">{{ pwd.level }}</span></div>
-                                    <div style="margin-top: 6px; word-break: break-all; font-size: 0.75rem; color: var(--text-secondary);">MD5 Digest: {{ pwd.md5Hash }}</div>
-                                </div>
-                            </div>
-
-                            <!-- 3.8 赊账备忘贴 -->
-                            <div v-if="activeTool === 'credit'">
-                                <input class="input-field" type="text" v-model="credit.name" placeholder="Counterparty Name" />
-                                <input class="input-field" type="number" v-model.number="credit.amount" placeholder="Amount ($)" />
-                                <input class="input-field" type="date" v-model="credit.date" />
-                                <button class="btn-primary" @click="addCreditMemo">Save Memo</button>
-                                <div style="margin-top: 14px;">
-                                    <div v-for="(m, idx) in credit.list" :key="idx" style="font-size: 0.85rem; padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between;">
-                                        <span>{{ m.name }} ($ {{ m.amount }})</span>
-                                        <span style="color: var(--danger-color);">Due: {{ m.date }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <tab-bar />
+                    <div class="glass-panel" style="font-size: 14px; line-height: 1.6; color: var(--text-main);" v-html="content"></div>
                 </div>
             `,
             setup() {
-                const activeTool = ref(null);
+                const route = useRoute();
+                const title = route.meta.title;
+                const content = route.meta.content;
+                return { title, content };
+            }
+        };
 
-                // DCA state
-                const dca = ref({ cost: null, shares: null, target: null, result: null, rate: 0 });
-                function calcDca() {
-                    if (!dca.value.cost || !dca.value.shares || !dca.value.target) return;
-                    const invested = dca.value.cost * dca.value.shares;
-                    const currentVal = dca.value.target * dca.value.shares;
-                    dca.value.result = currentVal - invested;
-                    dca.value.rate = (dca.value.result / invested) * 100;
-                }
-
-                // Calendar state
-                const cal = ref({ note: '', date: '', list: [{ note: 'Quarterly Dividend', date: '2026-11-01' }] });
-                function addCalendarNote() {
-                    if (!cal.value.note || !cal.value.date) return;
-                    cal.value.list.push({ note: cal.value.note, date: cal.value.date });
-                    cal.value.note = '';
-                    cal.value.date = '';
-                }
-
-                // Loan state
-                const loan = ref({ amount: null, rate: null, months: null, monthlyPayment: null, totalInterest: null });
-                function calcLoan() {
-                    if (!loan.value.amount || !loan.value.rate || !loan.value.months) return;
-                    const p = loan.value.amount;
-                    const r = loan.value.rate / 100 / 12;
-                    const n = loan.value.months;
-                    const payment = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-                    loan.value.monthlyPayment = payment;
-                    loan.value.totalInterest = payment * n - p;
-                }
-
-                // Profit state
-                const profit = ref({ cost: null, price: null, qty: null, net: null });
-                function calcProfit() {
-                    if (!profit.value.cost || !profit.value.price || !profit.value.qty) return;
-                    profit.value.net = (profit.value.price - profit.value.cost) * profit.value.qty;
-                }
-
-                // Reverse Yield state
-                const rev = ref({ target: null, principal: null, years: null, yield: null });
-                function calcReverse() {
-                    if (!rev.value.target || !rev.value.principal || !rev.value.years) return;
-                    const y = (Math.pow(rev.value.target / rev.value.principal, 1 / rev.value.years) - 1) * 100;
-                    rev.value.yield = y;
-                }
-
-                // Password state (Calls md5)
-                const pwd = ref({ val: '', level: '', color: '', md5Hash: '' });
-                function checkPassword() {
-                    const val = pwd.value.val;
-                    pwd.value.md5Hash = md5(val);
-                    if (val.length < 6) {
-                        pwd.value.level = 'Weak';
-                        pwd.value.color = 'var(--danger-color)';
-                    } else if (val.length < 10 || !/[A-Z]/.test(val) || !/[0-9]/.test(val)) {
-                        pwd.value.level = 'Moderate';
-                        pwd.value.color = '#f59e0b';
-                    } else {
-                        pwd.value.level = 'Strong';
-                        pwd.value.color = 'var(--success-color)';
-                    }
-                }
-
-                // Credit Memo state
-                const credit = ref({ name: '', amount: null, date: '', list: [{ name: 'Partner A', amount: 500, date: '2026-11-15' }] });
-                function addCreditMemo() {
-                    if (!credit.value.name || !credit.value.amount || !credit.value.date) return;
-                    credit.value.list.push({ name: credit.value.name, amount: credit.value.amount, date: credit.value.date });
-                    credit.value.name = '';
-                    credit.value.amount = null;
-                    credit.value.date = '';
-                }
-
-                return {
-                    activeTool, dca, calcDca, cal, addCalendarNote,
-                    loan, calcLoan, profit, calcProfit, rev, calcReverse,
-                    pwd, checkPassword, credit, addCreditMemo
+        // 12. Settings: Check-in
+        const Checkin = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Monthly Check-in</h2>
+                    </div>
+                    <div class="glass-panel text-center">
+                        <h3 style="margin-bottom: 16px;">{{ currentMonth }}</h3>
+                        <button class="btn-primary" style="width: 100%;" @click="checkin">Check In Today</button>
+                        <p v-if="checkedIn" style="margin-top: 16px; color: var(--accent-green); font-weight: 600;">✓ Successfully checked in!</p>
+                    </div>
+                </div>
+            `,
+            setup() {
+                const checkedIn = ref(false);
+                const currentMonth = computed(() => {
+                    const d = new Date();
+                    return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+                });
+                const checkin = () => {
+                    checkedIn.value = true;
                 };
+                return { checkedIn, currentMonth, checkin };
             }
         };
 
-        // 4. 设定 Settings 组件
-        const SettingsPage = {
-            components: { 'tab-bar': TabBarComponent },
+        // 13. Settings: Feedback
+        const Feedback = {
             template: `
-                <div>
-                    <div class="page-content">
-                        <h2 style="font-size: 1.2rem; margin-bottom: 16px;">Settings & Profile</h2>
-
-                        <div class="card" style="padding: 0;">
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-version')">
-                                <div class="tool-info"><h3>Version</h3><p>v2.4.0 (Production)</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-privacy')">
-                                <div class="tool-info"><h3>Privacy Policy</h3><p>Data security and user protection</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-terms')">
-                                <div class="tool-info"><h3>Terms of Service</h3><p>User agreement and conditions</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-team')">
-                                <div class="tool-info"><h3>About Team</h3><p>Core developers and engineers</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="contactUs">
-                                <div class="tool-info"><h3>Contact Us</h3><p>com.personaquiz.parkmaster@gmail.com</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-checkin')">
-                                <div class="tool-info"><h3>Check-in</h3><p>Monthly streak and rewards</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-feedback')">
-                                <div class="tool-info"><h3>Feedback</h3><p>Send suggestions to support</p></div>
-                                <span>→</span>
-                            </div>
-                            <div class="tool-card" style="border:none; margin:0;" @click="$router.push('/sub-inbox')">
-                                <div class="tool-info"><h3>Inbox</h3><p>System notifications (1 unread)</p></div>
-                                <span>→</span>
-                            </div>
-                        </div>
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Feedback</h2>
                     </div>
-                    <tab-bar />
+                    <div class="glass-panel">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" v-model="title" class="form-control" placeholder="Subject">
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <textarea v-model="content" class="form-control" rows="5" placeholder="Describe your issue..."></textarea>
+                        </div>
+                        <button class="btn-primary" style="width: 100%;" :disabled="!title || !content" @click="sendFeedback">Send</button>
+                    </div>
                 </div>
             `,
             setup() {
-                function contactUs() {
-                    window.location.href = 'mailto:com.personaquiz.parkmaster@gmail.com';
-                }
-                return { contactUs };
-            }
-        };
-
-        // 设定子页面：Version
-        const SubVersionPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Version</div><div style="width:40px;"></div></header>
-                <div class="page-content"><div class="card" style="text-align: center; padding: 30px;"><h3 style="margin-bottom: 8px;">81Prime Mobile</h3><p style="color:var(--text-secondary); font-size:0.85rem;">Version 2.4.0 Build 202610</p></div></div>
-            </div>`
-        };
-
-        // 设定子页面：Privacy Policy
-        const SubPrivacyPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Privacy Policy</div><div style="width:40px;"></div></header>
-                <div class="page-content"><div class="card"><h3 style="margin-bottom:10px;">Privacy Protection</h3><p style="font-size:0.9rem; line-height:1.6; color:var(--text-secondary);">We respect your privacy. All financial calculations and records are stored locally on your device with secure encryption protocols. No personal data is transmitted to external servers without authorization.</p></div></div>
-            </div>`
-        };
-
-        // 设定子页面：Terms of Service
-        const SubTermsPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Terms of Service</div><div style="width:40px;"></div></header>
-                <div class="page-content"><div class="card"><h3 style="margin-bottom:10px;">Service Agreement</h3><p style="font-size:0.9rem; line-height:1.6; color:var(--text-secondary);">By using 81Prime, you agree to comply with financial safety regulations and standard trading practices. All analytics are provided for informational purposes only.</p></div></div>
-            </div>`
-        };
-
-        // 设定子页面：About Team
-        const SubTeamPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">About Team</div><div style="width:40px;"></div></header>
-                <div class="page-content"><div class="card"><h3 style="margin-bottom:10px;">81Prime Core Engineering</h3><p style="font-size:0.9rem; line-height:1.6; color:var(--text-secondary);">We are a dedicated group of mobile frontend engineers and quantitative analysts building high-performance financial toolkits for modern investors.</p></div></div>
-            </div>`
-        };
-
-        // 设定子页面：Check-in
-        const SubCheckinPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Check-in</div><div style="width:40px;"></div></header>
-                <div class="page-content">
-                    <div class="card" style="text-align: center;">
-                        <h3 style="margin-bottom: 12px;">October 2026 Check-in</h3>
-                        <button class="btn-primary" @click="doCheckin" :disabled="checkedToday">{{ checkedToday ? 'Checked In Today' : 'Click to Check-in' }}</button>
-                        <div class="calendar-grid">
-                            <div class="cal-day" v-for="d in 30" :key="d" :class="{ checked: d <= streak }">{{ d }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>`,
-            setup() {
-                const streak = ref(5);
-                const checkedToday = ref(false);
-                function doCheckin() {
-                    if (checkedToday.value) return;
-                    streak.value++;
-                    checkedToday.value = true;
-                    showToast('Check-in successful!');
-                }
-                return { streak, checkedToday, doCheckin };
-            }
-        };
-
-        // 设定子页面：Feedback
-        const SubFeedbackPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Feedback</div><div style="width:40px;"></div></header>
-                <div class="page-content">
-                    <div class="card">
-                        <input class="input-field" type="text" v-model="title" placeholder="Feedback Title" />
-                        <textarea class="input-field" v-model="content" placeholder="Describe your issue or suggestion..." rows="4" style="resize:none;"></textarea>
-                        <button class="btn-primary" :disabled="!isValid" @click="submitFeedback">Send Feedback</button>
-                    </div>
-                </div>
-            </div>`,
-            setup() {
-                const router = useRouter();
                 const title = ref('');
                 const content = ref('');
-                const isValid = computed(() => title.value.trim() && content.value.trim());
-
-                function submitFeedback() {
-                    if (!isValid.value) return;
-                    showToast('Feedback sent successfully!');
+                const router = useRouter();
+                
+                const sendFeedback = () => {
+                    if (!title.value || !content.value) return;
+                    // Trigger global toast (via app instance or simple alert)
+                    const event = new CustomEvent('show-toast', { detail: 'Feedback sent successfully!' });
+                    window.dispatchEvent(event);
                     title.value = '';
                     content.value = '';
-                    router.back();
-                }
+                    router.push('/settings');
+                };
 
-                return { title, content, isValid, submitFeedback };
+                return { title, content, sendFeedback };
             }
         };
 
-        // 设定子页面：Inbox
-        const SubInboxPage = {
-            template: `<div>
-                <header class="app-header"><button class="back-btn" @click="$router.back()">← Back</button><div class="brand-title">Inbox</div><div style="width:40px;"></div></header>
-                <div class="page-content">
-                    <div class="card" @click="showAlert = true" style="cursor: pointer;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <h3 style="font-size: 0.95rem;">Welcome to 81Prime</h3>
-                            <span style="font-size: 0.75rem; color: var(--accent-color);">New</span>
-                        </div>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary);">Tap to read system initialization message and guidelines.</p>
+        // 14. Settings: Inbox
+        const Inbox = {
+            template: `
+                <div class="page-container">
+                    <div class="tool-header">
+                        <button class="back-btn" @click="$router.back()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <h2>Inbox</h2>
                     </div>
-
-                    <div class="modal-overlay" v-if="showAlert" @click.self="showAlert = false">
-                        <div class="modal-box">
-                            <h3 style="margin-bottom: 10px;">Welcome</h3>
-                            <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); margin-bottom: 16px;">
-                                Welcome to 81Prime! Your mobile financial terminal is fully initialized and operating in offline-first mode. Explore real-time market overviews, powerful toolkits, and secure local management features.
-                            </p>
-                            <button class="btn-primary" @click="showAlert = false">Got it</button>
+                    <div class="menu-list">
+                        <div class="menu-item" @click="showMessage = true">
+                            <div class="menu-item-left">Welcome</div>
+                            <div class="menu-item-right">→</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal -->
+                    <div v-if="showMessage" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;" @click.self="showMessage = false">
+                        <div class="glass-panel" style="background: white; width: 100%; max-width: 400px;">
+                            <h3 style="margin-bottom: 12px;">Welcome</h3>
+                            <p style="font-size: 14px; color: var(--text-muted);">Welcome to SSMA Plus! Your ultimate financial companion for tracking stocks and managing your portfolio.</p>
+                            <button class="btn-primary mt-4" style="width: 100%;" @click="showMessage = false">Close</button>
                         </div>
                     </div>
                 </div>
-            </div>`,
+            `,
             setup() {
-                const showAlert = ref(false);
-                return { showAlert };
+                const showMessage = ref(false);
+                return { showMessage };
             }
         };
 
-        // 路由配置（严格使用 hash 模式）
+        // --- Router Configuration ---
         const routes = [
-            { path: '/', component: LoadingPage },
-            { path: '/home', component: HomePage },
-            { path: '/detail', component: DetailPage },
-            { path: '/sublist', component: SubListPage },
-            { path: '/guide', component: GuidePage },
-            { path: '/toolbox', component: ToolboxPage },
-            { path: '/settings', component: SettingsPage },
-            { path: '/sub-version', component: SubVersionPage },
-            { path: '/sub-privacy', component: SubPrivacyPage },
-            { path: '/sub-terms', component: SubTermsPage },
-            { path: '/sub-team', component: SubTeamPage },
-            { path: '/sub-checkin', component: SubCheckinPage },
-            { path: '/sub-feedback', component: SubFeedbackPage },
-            { path: '/sub-inbox', component: SubInboxPage }
+            { path: '/', component: Loading },
+            { path: '/home', component: Home },
+            { path: '/stock/:symbol', component: StockDetail },
+            { path: '/top-gainers', component: StockListPage, meta: { title: 'Top Gainers', count: 10 } },
+            { path: '/top-losers', component: StockListPage, meta: { title: 'Top Losers', count: 5 } },
+            { path: '/most-active', component: StockListPage, meta: { title: 'Most Active', count: 8 } },
+            { path: '/today-picks', component: StockListPage, meta: { title: "Today's Picks", count: 10 } },
+            { path: '/toolbox', component: Toolbox },
+            { path: '/tool/dca', component: DcaTool },
+            { path: '/tool/loan', component: LoanTool },
+            { path: '/tool/profit', component: ProfitTool },
+            { path: '/tool/password', component: PasswordTool },
+            { path: '/tool/credit', component: CreditTool },
+            { path: '/settings', component: Settings },
+            { path: '/settings/privacy', component: TextPage, meta: { title: 'Privacy Policy', content: '<p>We respect your privacy. Your data is processed locally on your device and is not shared with third parties.</p>' } },
+            { path: '/settings/terms', component: TextPage, meta: { title: 'Terms of Service', content: '<p>By using SSMA Plus, you agree to use the app for informational purposes only. We are not responsible for financial decisions made based on this data.</p>' } },
+            { path: '/settings/team', component: TextPage, meta: { title: 'About Team', content: '<p>We are a dedicated team of engineers and financial analysts striving to make stock tracking accessible to everyone.</p>' } },
+            { path: '/settings/checkin', component: Checkin },
+            { path: '/settings/feedback', component: Feedback },
+            { path: '/settings/inbox', component: Inbox },
         ];
 
         const router = createRouter({
             history: createWebHashHistory(),
-            routes
+            routes,
         });
 
-        const app = createApp({
+        // --- Main App Setup ---
+        const App = {
+            template: `
+                <router-view v-slot="{ Component }">
+                    <transition name="slide-up" mode="out-in">
+                        <component :is="Component" />
+                    </transition>
+                </router-view>
+                <nav class="tab-bar" v-if="showTabBar">
+                    <router-link to="/home" class="tab-item">
+                        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        Home
+                    </router-link>
+                    <router-link to="/toolbox" class="tab-item">
+                        <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                        Toolbox
+                    </router-link>
+                    <router-link to="/settings" class="tab-item">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        Settings
+                    </router-link>
+                </nav>
+                <div class="toast" v-if="toastMessage">{{ toastMessage }}</div>
+            `,
             setup() {
-                return {};
-            }
-        });
+                const route = useRoute();
+                const toastMessage = ref('');
+                
+                const showTabBar = computed(() => {
+                    const mainRoutes = ['/home', '/toolbox', '/settings'];
+                    return mainRoutes.includes(route.path);
+                });
 
+                // Global Toast Event Listener
+                const handleToast = (e) => {
+                    toastMessage.value = e.detail;
+                    setTimeout(() => { toastMessage.value = ''; }, 2000);
+                };
+
+                onMounted(() => {
+                    window.addEventListener('show-toast', handleToast);
+                });
+
+                return { showTabBar, toastMessage };
+            }
+        };
+
+        const app = createApp(App);
         app.use(router);
         app.mount('#app');
     </script>
